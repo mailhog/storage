@@ -3,7 +3,7 @@ package storage
 import (
 	"log"
 
-	"github.com/ian-kent/Go-MailHog/data"
+	"github.com/mailhog/data"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 )

@@ -1,6 +1,6 @@
 package storage
 
-import "github.com/ian-kent/Go-MailHog/data"
+import "github.com/mailhog/data"
 
 // InMemory is an in memory storage backend
 type InMemory struct {
