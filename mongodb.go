@@ -38,6 +38,19 @@ func (mongo *MongoDB) Store(m *data.Message) (string, error) {
 	return string(m.ID), nil
 }
 
+// Count returns the number of stored messages
+func (mongo *MongoDB) Count() int {
+	c, _ := mongo.Collection.Count()
+	return c
+}
+
+// Search finds messages matching the query
+func (mongo *MongoDB) Search(kind, query string, start, limit int) (*data.Messages, int, error) {
+	messages := &data.Messages{}
+	// FIXME
+	return messages, 0, nil
+}
+
 // List returns a list of messages by index
 func (mongo *MongoDB) List(start int, limit int) (*data.Messages, error) {
 	messages := &data.Messages{}
