@@ -22,6 +22,11 @@ func CreateMongoDB(uri, db, coll string) *MongoDB {
 		log.Printf("Error connecting to MongoDB: %s", err)
 		return nil
 	}
+	err = session.DB(db).C(coll).EnsureIndexKey("created")
+	if err != nil {
+		log.Printf("Failed creating index: %s", err)
+		return nil
+	}
 	return &MongoDB{
 		Session:    session,
 		Collection: session.DB(db).C(coll),
@@ -54,7 +59,7 @@ func (mongo *MongoDB) Search(kind, query string, start, limit int) (*data.Messag
 // List returns a list of messages by index
 func (mongo *MongoDB) List(start int, limit int) (*data.Messages, error) {
 	messages := &data.Messages{}
-	err := mongo.Collection.Find(bson.M{}).Skip(start).Limit(limit).Select(bson.M{
+	err := mongo.Collection.Find(bson.M{}).Skip(start).Limit(limit).Sort("-created").Select(bson.M{
 		"id":              1,
 		"_id":             1,
 		"from":            1,
