@@ -158,6 +158,11 @@ func (memory *InMemory) List(start int, limit int) (*data.Messages, error) {
 func (memory *InMemory) DeleteOne(id string) error {
 	index := memory.MessageIDIndex[id]
 	delete(memory.MessageIDIndex, id)
+	for k, v := range memory.MessageIDIndex {
+		if v > index {
+			memory.MessageIDIndex[k] = v - 1
+		}
+	}
 	memory.Messages = append(memory.Messages[:index], memory.Messages[index+1:]...)
 	return nil
 }
