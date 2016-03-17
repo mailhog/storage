@@ -2,7 +2,6 @@ package storage
 
 import (
 	"log"
-
 	"github.com/mailhog/data"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
@@ -52,8 +51,31 @@ func (mongo *MongoDB) Count() int {
 // Search finds messages matching the query
 func (mongo *MongoDB) Search(kind, query string, start, limit int) (*data.Messages, int, error) {
 	messages := &data.Messages{}
-	// FIXME
-	return messages, 0, nil
+	var count = 0
+	var field = "raw.data"
+	switch kind {
+		case "to":
+			field = "raw.to"
+		case "from":
+			field = "raw.from"
+	}
+	err := mongo.Collection.Find(bson.M{field: bson.RegEx{Pattern: query, Options: "i"}}).Skip(start).Limit(limit).Sort("-created").Select(bson.M{
+		"id":              1,
+		"_id":             1,
+		"from":            1,
+		"to":              1,
+		"content.headers": 1,
+		"content.size":    1,
+		"created":         1,
+		"raw":             1,
+	}).All(messages)
+	if err != nil {
+		log.Printf("Error loading messages: %s", err)
+		return nil, 0, err
+	}
+	count, _ = mongo.Collection.Find(bson.M{field: bson.RegEx{Pattern: query, Options: "i"}}).Count()
+
+	return messages, count, nil
 }
 
 // List returns a list of messages by index
@@ -67,6 +89,7 @@ func (mongo *MongoDB) List(start int, limit int) (*data.Messages, error) {
 		"content.headers": 1,
 		"content.size":    1,
 		"created":         1,
+		"raw":             1,
 	}).All(messages)
 	if err != nil {
 		log.Printf("Error loading messages: %s", err)
