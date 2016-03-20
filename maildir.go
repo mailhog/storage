@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"errors"
 	"io/ioutil"
 	"log"
 	"os"
@@ -64,13 +65,60 @@ func (maildir *Maildir) Search(kind, query string, start, limit int) (*data.Mess
 	query = strings.ToLower(query)
 	var filteredMessages = make([]data.Message, 0)
 
-	// for _, m := range memory.Messages {
-	// 	switch kind {
-	// 	case "to":
-	// 	case "from":
-	// 	case "containing":
-	// 	}
-	// }
+	var matched int
+
+	err := filepath.Walk(maildir.Path, func(path string, info os.FileInfo, err error) error {
+		if limit > 0 && len(filteredMessages) >= limit {
+			return errors.New("reached limit")
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		msg, err := maildir.Load(info.Name())
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+
+		switch kind {
+		case "to":
+			for _, t := range msg.To {
+				if strings.Contains(t.Mailbox+"@"+t.Domain, query) {
+					if start > matched {
+						matched++
+						break
+					}
+					filteredMessages = append(filteredMessages, *msg)
+					break
+				}
+			}
+		case "from":
+			if strings.Contains(msg.From.Mailbox+"@"+msg.From.Domain, query) {
+				if start > matched {
+					matched++
+					break
+				}
+				filteredMessages = append(filteredMessages, *msg)
+			}
+		case "containing":
+			if strings.Contains(msg.Raw.Data, query) {
+				if start > matched {
+					matched++
+					break
+				}
+				filteredMessages = append(filteredMessages, *msg)
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		log.Println(err)
+	}
+
 	msgs := data.Messages(filteredMessages)
 	return &msgs, len(filteredMessages), nil
 }
