@@ -126,7 +126,7 @@ func (maildir *Maildir) Search(kind, query string, start, limit int) (*data.Mess
 // List lists stored messages by index
 func (maildir *Maildir) List(start, limit int) (*data.Messages, error) {
 	log.Println("Listing messages in", maildir.Path)
-	var messages = make([]data.Message, 0)
+	messages := make([]data.Message, 0)
 
 	dir, err := os.Open(maildir.Path)
 	if err != nil {
@@ -134,21 +134,21 @@ func (maildir *Maildir) List(start, limit int) (*data.Messages, error) {
 	}
 	defer dir.Close()
 
-	n, err := dir.Readdirnames(0)
+	n, err := dir.Readdir(0)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, path := range n {
-		b, err := ioutil.ReadFile(filepath.Join(maildir.Path, path))
+	for _, fileinfo := range n {
+		b, err := ioutil.ReadFile(filepath.Join(maildir.Path, fileinfo.Name()))
 		if err != nil {
 			return nil, err
 		}
-
 		msg := data.FromBytes(b)
 		// FIXME domain
 		m := *msg.Parse("mailhog.example")
-		m.ID = data.MessageID(path)
+		m.ID = data.MessageID(fileinfo.Name())
+		m.Created = fileinfo.ModTime()
 		messages = append(messages, m)
 	}
 
