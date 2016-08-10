@@ -1,0 +1,43 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "ZhN2RVIK/L9LO9WGjducyi2buIk=",
+			"path": "github.com/mailhog/data",
+			"revision": "da1c207f0293654419657db063f7d74f5fb550ab",
+			"revisionTime": "2016-07-07T21:39:15Z"
+		},
+		{
+			"checksumSHA1": "Ye8lEnmzH4uUJ9GONq/Tp3Pekmo=",
+			"path": "gopkg.in/mgo.v2",
+			"revision": "01084657862d7b12d3b10ffd0394357abf8f8bc2",
+			"revisionTime": "2016-08-01T21:38:24Z"
+		},
+		{
+			"checksumSHA1": "X+UmZuc1xY9x8Bj/qVnQNQnGFV0=",
+			"path": "gopkg.in/mgo.v2/bson",
+			"revision": "01084657862d7b12d3b10ffd0394357abf8f8bc2",
+			"revisionTime": "2016-08-01T21:38:24Z"
+		},
+		{
+			"checksumSHA1": "XQsrqoNT1U0KzLxOFcAZVvqhLfk=",
+			"path": "gopkg.in/mgo.v2/internal/json",
+			"revision": "01084657862d7b12d3b10ffd0394357abf8f8bc2",
+			"revisionTime": "2016-08-01T21:38:24Z"
+		},
+		{
+			"checksumSHA1": "LEvMCnprte47qdAxWvQ/zRxVF1U=",
+			"path": "gopkg.in/mgo.v2/internal/sasl",
+			"revision": "01084657862d7b12d3b10ffd0394357abf8f8bc2",
+			"revisionTime": "2016-08-01T21:38:24Z"
+		},
+		{
+			"checksumSHA1": "+1WDRPaOphSCmRMxVPIPBV4aubc=",
+			"path": "gopkg.in/mgo.v2/internal/scram",
+			"revision": "01084657862d7b12d3b10ffd0394357abf8f8bc2",
+			"revisionTime": "2016-08-01T21:38:24Z"
+		}
+	],
+	"rootPath": "github.com/mailhog/storage"
+}
