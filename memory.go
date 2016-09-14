@@ -10,6 +10,10 @@ import (
 type InMemory struct {
 	MessageIDIndex map[string]int
 	Messages       []*data.Message
+
+	sliceIndexMap map[int]string
+	messageLimit  int
+	writeIndex    int
 }
 
 // CreateInMemory creates a new in memory storage backend
@@ -17,13 +21,37 @@ func CreateInMemory() *InMemory {
 	return &InMemory{
 		MessageIDIndex: make(map[string]int),
 		Messages:       make([]*data.Message, 0),
+		sliceIndexMap:  make(map[int]string),
 	}
+}
+
+// Set a limit on the number of messages that will be stored.
+// Once this limit is reached, the oldest message will be overwritten
+// by every new message.
+func (memory *InMemory) SetMessageLimit(limit int) error {
+	memory.messageLimit = limit
+	return nil
 }
 
 // Store stores a message and returns its storage ID
 func (memory *InMemory) Store(m *data.Message) (string, error) {
-	memory.Messages = append(memory.Messages, m)
-	memory.MessageIDIndex[string(m.ID)] = len(memory.Messages) - 1
+	if memory.messageLimit > 0 && len(memory.Messages) == memory.messageLimit {
+		// overwrite oldest message
+		memory.Messages[memory.writeIndex] = m
+		messageID := memory.sliceIndexMap[memory.writeIndex]
+		delete(memory.MessageIDIndex, messageID)
+		memory.MessageIDIndex[string(m.ID)] = memory.writeIndex
+		memory.sliceIndexMap[memory.writeIndex] = string(m.ID)
+		memory.writeIndex++
+		// if we reach the end of the slice then start over
+		if memory.writeIndex == len(memory.Messages) {
+			memory.writeIndex = 0
+		}
+	} else {
+		memory.Messages = append(memory.Messages, m)
+		memory.MessageIDIndex[string(m.ID)] = len(memory.Messages) - 1
+		memory.sliceIndexMap[len(memory.Messages)-1] = string(m.ID)
+	}
 	return string(m.ID), nil
 }
 
@@ -126,28 +154,34 @@ func (memory *InMemory) Search(kind, query string, start, limit int) (*data.Mess
 func (memory *InMemory) List(start int, limit int) (*data.Messages, error) {
 	var messages = make([]data.Message, 0)
 
+	start = (memory.writeIndex - 1) - start
+	if start < 0 {
+		start = len(memory.Messages) + start
+	}
+
 	if len(memory.Messages) == 0 || start > len(memory.Messages) {
 		msgs := data.Messages(messages)
 		return &msgs, nil
 	}
 
-	if start+limit > len(memory.Messages) {
-		limit = len(memory.Messages) - start
+	if limit > len(memory.Messages) {
+		limit = len(memory.Messages)
 	}
 
-	start = len(memory.Messages) - start - 1
-	end := start - limit
-
-	if start < 0 {
-		start = 0
-	}
-	if end < -1 {
-		end = -1
-	}
-
-	for i := start; i > end; i-- {
-		//for _, m := range memory.MessageIndex[start:end] {
+	i := start
+	for {
+		if len(messages) == limit {
+			break
+		}
 		messages = append(messages, *memory.Messages[i])
+		i--
+		if i < 0 {
+			i = len(memory.Messages) - 1
+		}
+		// we've gone full circle
+		if i == memory.writeIndex {
+			break
+		}
 	}
 
 	msgs := data.Messages(messages)
