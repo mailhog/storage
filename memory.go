@@ -25,9 +25,9 @@ func CreateInMemory() *InMemory {
 // Store stores a message and returns its storage ID
 func (memory *InMemory) Store(m *data.Message) (string, error) {
 	memory.mu.Lock()
+	defer memory.mu.Unlock()
 	memory.Messages = append(memory.Messages, m)
 	memory.MessageIDIndex[string(m.ID)] = len(memory.Messages) - 1
-	memory.mu.Unlock()
 	return string(m.ID), nil
 }
 
@@ -161,6 +161,7 @@ func (memory *InMemory) List(start int, limit int) (*data.Messages, error) {
 // DeleteOne deletes an individual message by storage ID
 func (memory *InMemory) DeleteOne(id string) error {
 	memory.mu.Lock()
+	defer memory.mu.Unlock()
 	index := memory.MessageIDIndex[id]
 	delete(memory.MessageIDIndex, id)
 	for k, v := range memory.MessageIDIndex {
@@ -169,16 +170,15 @@ func (memory *InMemory) DeleteOne(id string) error {
 		}
 	}
 	memory.Messages = append(memory.Messages[:index], memory.Messages[index+1:]...)
-	memory.mu.Unlock()
 	return nil
 }
 
 // DeleteAll deletes all in memory messages
 func (memory *InMemory) DeleteAll() error {
 	memory.mu.Lock()
+	defer memory.mu.Unlock()
 	memory.Messages = make([]*data.Message, 0)
 	memory.MessageIDIndex = make(map[string]int)
-	memory.mu.Unlock()
 	return nil
 }
 
