@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -64,7 +65,7 @@ func TestDeleteOne(t *testing.T) {
 	}
 
 	for i := 0; i < 25; i++ {
-		storage.Store(&data.Message{ID: data.MessageID(i), Created: time.Now()})
+		storage.Store(&data.Message{ID: data.MessageID(fmt.Sprintf("%d", i)), Created: time.Now()})
 	}
 
 	storage.DeleteOne("1")
@@ -75,7 +76,7 @@ func TestDeleteOne(t *testing.T) {
 
 	storage.DeleteOne("34789")
 
-	if storage.Count() != 23 {
-		t.Errorf("storage.Count() expected: %d, got: %d", 23, storage.Count())
+	if storage.Count() != 24 {
+		t.Errorf("storage.Count() expected: %d, got: %d", 24, storage.Count())
 	}
 }
