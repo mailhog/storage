@@ -70,6 +70,12 @@ func TestDeleteOne(t *testing.T) {
 	storage.DeleteOne("1")
 
 	if storage.Count() != 24 {
-		t.Errorf("storage.Count() expected: %d, got: %d", 0, storage.Count())
+		t.Errorf("storage.Count() expected: %d, got: %d", 24, storage.Count())
+	}
+
+	storage.DeleteOne("34789")
+
+	if storage.Count() != 23 {
+		t.Errorf("storage.Count() expected: %d, got: %d", 23, storage.Count())
 	}
 }
