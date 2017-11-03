@@ -9,7 +9,7 @@ import (
 	"github.com/mailhog/data"
 )
 
-func TestStore(t *testing.T) {
+func TestImMemoryStore(t *testing.T) {
 	storage := CreateInMemory()
 
 	if storage.Count() != 0 {
@@ -35,7 +35,7 @@ func TestStore(t *testing.T) {
 	}
 }
 
-func TestDeleteAll(t *testing.T) {
+func TestImMemoryDeleteAll(t *testing.T) {
 	storage := CreateInMemory()
 
 	if storage.Count() != 0 {
@@ -57,7 +57,7 @@ func TestDeleteAll(t *testing.T) {
 	}
 }
 
-func TestDeleteOne(t *testing.T) {
+func TestImMemoryDeleteOne(t *testing.T) {
 	storage := CreateInMemory()
 
 	if storage.Count() != 0 {
