@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/mailhog/data"
@@ -151,6 +152,10 @@ func (maildir *Maildir) List(start, limit int) (*data.Messages, error) {
 		m.Created = fileinfo.ModTime()
 		messages = append(messages, m)
 	}
+
+	sort.Slice(messages, func(i, j int) bool {
+	  return messages[i].Created.After(messages[j].Created)
+	})
 
 	log.Printf("Found %d messages", len(messages))
 	msgs := data.Messages(messages)
