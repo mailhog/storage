@@ -150,6 +150,9 @@ func (maildir *Maildir) List(start, limit int) (*data.Messages, error) {
 		m.ID = data.MessageID(fileinfo.Name())
 		m.Created = fileinfo.ModTime()
 		messages = append(messages, m)
+		if (limit > 0 && len(messages) >= limit) {
+		    break
+		} 
 	}
 
 	log.Printf("Found %d messages", len(messages))
